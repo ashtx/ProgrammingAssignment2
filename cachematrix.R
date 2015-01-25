@@ -7,14 +7,23 @@
 
 
 makeCacheMatrix <- function(x = matrix()) {
-	    m <- NULL
+	    xinverse <- NULL
         set <- function(y) {
+        	#setting deep assignment variables for matrix x
                 x <<- y
-                m <<- NULL
+            #Setting value of xinverse to NULL to overide current value if any    
+                xinverse <<- NULL
         }
-        get <- function() x
-        setinv <- function(inv) m <<- inv
-        getinv <- function() m
+        #Function to retrieve  matrix x
+        get <- function() x   
+
+        # Function to set inverse of x with deep assignment since we want to override the previous value of xinverse
+        setinv <- function(inv) xinverse <<- inv  
+
+        #Function to retrieve x inverse 
+        getinv <- function() xinverse
+
+        #Creating list to call "child" functions (eg. x$getinv())
         list(set = set, get = get,
              setinv = setinv,
              getinv = getinv)
@@ -23,17 +32,26 @@ makeCacheMatrix <- function(x = matrix()) {
 
 
 ## Write a short comment describing this function
+# Retrieve inverse of the matrix if it is set 
+# If inverse is not set, it will calculate the inverse using solve function and store it  in "xinverse" variable 
+#Notice the argument "..." which specifies that number of arguments is unknown after x
 
 cacheSolve <- function(x, ...) {
         ## Return a matrix that is the inverse of 'x'
-           m <- x$getinv()
-        if(!is.null(m)) {
+        #Calling getinv function from the list
+         xinverse <- x$getinv()
+        if(!is.null(xinverse)) {
                 message("getting cached data")
-                return(m)
+                #Return value of xinverse since it already set. 
+                #Function exists as soon as it reads return statement and no further processing takes place
+                return(xinverse)
         }
-
+        
+        # Store matrix x in data variable retrieved from the makeCacheMatrix member function get()
         data <- x$get()
-        m <- solve(data, ...)
-        x$setinv(m)
-        m
+        #Solving the matrix if xinverse is not already set
+        xinverse <- solve(data, ...)
+        #Setting(storing) new value of inverse x in xinverse via member of funtion of makeCacheMatrix function. 
+        x$setinv(xinverse)
+        xinverse
 }
